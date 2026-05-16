@@ -1,0 +1,37 @@
+{
+  "mappings": {
+    "numeric_detection": true,
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "fields": {
+          "raw": {
+            "type": "keyword"
+          }
+        }
+      },
+      "email": {
+        "type": "keyword"
+      },
+      "password": {
+        "type": "text"
+      },
+      "phone": {
+        "type": "keyword"
+      },
+      "created_at": {
+        "type": "long"
+      },
+      "updated_at": {
+        "type": "long"
+      },
+      "deleted_at": {
+        "type": "long",
+        "null_value": -1
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "mappings": {
+    "numeric_detection": true,
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "fields": {
+          "raw": {
+            "type": "keyword"
+          }
+        }
+      },
+      "sku": {
+        "type": "keyword"
+      },
+      "image": {
+        "type": "text"
+      },
+      "description": {
+        "type": "text",
+        "fields": {
+          "raw": {
+            "type": "keyword"
+          }
+        }
+      },
+      "price": {
+          "type": "double"
+      },
+      "stock": {
+          "type": "integer"
+      },
+      "updated_at": {
+        "type": "long"
+      },
+      "deleted_at": {
+        "type": "long",
+        "null_value": -1
+      }
+    }
+  }
+}
