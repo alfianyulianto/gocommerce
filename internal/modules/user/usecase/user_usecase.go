@@ -113,6 +113,13 @@ func (c *userUseCase) Update(ctx context.Context, request *dto.UpdateUserRequest
 		return nil, err
 	}
 
+	go func() {
+		err = c.ESSearch.Index(ctx, user)
+		if err != nil {
+			c.Log.WithField("user", user).WithError(err).Error("Failed to index update user in elasticsearch")
+		}
+	}()
+
 	return dto.ToUserResponse(user), nil
 }
 
