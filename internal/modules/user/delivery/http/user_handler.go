@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/dto"
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/usecase"
-	response2 "github.com/alfianyulianto/gocommerce/pkg/response"
+	"github.com/alfianyulianto/gocommerce/pkg/response"
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -26,7 +26,7 @@ func (h *UserHandler) Create(ctx fiber.Ctx) error {
 		return err
 	}
 
-	return response2.Created(ctx, "success created user", user)
+	return response.Created(ctx, "success created user", user)
 }
 
 func (h *UserHandler) Update(ctx fiber.Ctx) error {
@@ -42,7 +42,7 @@ func (h *UserHandler) Update(ctx fiber.Ctx) error {
 		return err
 	}
 
-	return response2.OK(ctx, "success updated user", user, nil)
+	return response.OK(ctx, "success updated user", user, nil)
 }
 
 func (h *UserHandler) FindById(ctx fiber.Ctx) error {
@@ -51,7 +51,7 @@ func (h *UserHandler) FindById(ctx fiber.Ctx) error {
 		return err
 	}
 
-	return response2.OK(ctx, "success find user", user, nil)
+	return response.OK(ctx, "success find user", user, nil)
 }
 
 func (h *UserHandler) Delete(ctx fiber.Ctx) error {
@@ -60,7 +60,7 @@ func (h *UserHandler) Delete(ctx fiber.Ctx) error {
 		return err
 	}
 
-	return response2.OK(ctx, "success deleted user", nil, nil)
+	return response.OK(ctx, "success deleted user", nil, nil)
 }
 
 func (h *UserHandler) FindAll(ctx fiber.Ctx) error {
@@ -76,7 +76,7 @@ func (h *UserHandler) FindAll(ctx fiber.Ctx) error {
 		return err
 	}
 
-	return response2.OK(ctx, "success find users", users, pagination)
+	return response.OK(ctx, "success find users", users, pagination)
 }
 
 func (h *UserHandler) Search(ctx fiber.Ctx) error {
@@ -93,5 +93,5 @@ func (h *UserHandler) Search(ctx fiber.Ctx) error {
 		return err
 	}
 
-	return response2.OK(ctx, "success search users", users, pagination)
+	return response.OK(ctx, "success search users", users, pagination)
 }
