@@ -82,7 +82,7 @@ func (h *UserHandler) FindAll(ctx fiber.Ctx) error {
 func (h *UserHandler) Search(ctx fiber.Ctx) error {
 	request := new(dto.SearchUserRequest)
 
-	request.Search = ctx.Query("search")
+	request.Search = ctx.Query("q")
 	request.Page = fiber.Query(ctx, "page", 1)
 	request.PerPage = fiber.Query(ctx, "per_page", 10)
 	request.OrderBy = ctx.Query("order_by", "created_at")
