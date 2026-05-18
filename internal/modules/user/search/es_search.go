@@ -15,7 +15,7 @@ type ESSearch interface {
 	Search(ctx context.Context, request *dto.SearchUserRequest) ([]dto.UserResponse, int64, error)
 }
 
-type esUserRepository struct {
+type esUserSearch struct {
 	Client *elasticsearch.Client
 }
 
@@ -31,10 +31,10 @@ type UserDocument struct {
 }
 
 func NewEsUserSearch(client *elasticsearch.Client) ESSearch {
-	return &esUserRepository{Client: client}
+	return &esUserSearch{Client: client}
 }
 
-func (e *esUserRepository) Index(ctx context.Context, entity *entity.User) error {
+func (e *esUserSearch) Index(ctx context.Context, entity *entity.User) error {
 	document := UserDocument{
 		ID:        entity.ID,
 		Name:      entity.Name,
@@ -49,11 +49,11 @@ func (e *esUserRepository) Index(ctx context.Context, entity *entity.User) error
 	return e.Client.Index(ctx, e.Client.UserIndex(), document.ID, document)
 }
 
-func (e *esUserRepository) Delete(ctx context.Context, id string) error {
+func (e *esUserSearch) Delete(ctx context.Context, id string) error {
 	return e.Client.Delete(ctx, e.Client.UserIndex(), id)
 }
 
-func (e *esUserRepository) Search(ctx context.Context, request *dto.SearchUserRequest) ([]dto.UserResponse, int64, error) {
+func (e *esUserSearch) Search(ctx context.Context, request *dto.SearchUserRequest) ([]dto.UserResponse, int64, error) {
 	var must []any
 	if request.Search != "" {
 		must = append(must, map[string]interface{}{
