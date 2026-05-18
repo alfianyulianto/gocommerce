@@ -67,7 +67,10 @@ func (c *userUseCase) Create(ctx context.Context, request *dto.CreateUserRequest
 	}
 
 	go func() {
-		_ = c.ESSearch.Index(ctx, user)
+		err = c.ESSearch.Index(ctx, user)
+		if err != nil {
+			c.Log.WithField("user", user).WithError(err).Error("Failed to index create user in elasticsearch")
+		}
 	}()
 
 	return dto.ToUserResponse(user), nil
@@ -143,7 +146,10 @@ func (c *userUseCase) Delete(ctx context.Context, id string) error {
 	}
 
 	go func() {
-		_ = c.ESSearch.Delete(ctx, id)
+		err := c.ESSearch.Delete(ctx, id)
+		if err != nil {
+			c.Log.WithField("user", user).WithError(err).Error("Failed to delete user in elasticsearch")
+		}
 	}()
 
 	return nil
