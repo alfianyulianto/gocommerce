@@ -3,8 +3,8 @@ package user
 import (
 	"github.com/alfianyulianto/gocommerce/internal/infrastucture/elasticsearch"
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/delivery/http"
+	"github.com/alfianyulianto/gocommerce/internal/modules/user/delivery/http/route"
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/repository"
-	"github.com/alfianyulianto/gocommerce/internal/modules/user/routing"
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/search"
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/usecase"
 	"github.com/gofiber/fiber/v3"
@@ -25,5 +25,5 @@ func NewModule(db *gorm.DB, log *logrus.Logger, client *elasticsearch.Client) *M
 }
 
 func (m *Module) Register(router fiber.Router) {
-	routing.RegisterUserRoutes(router, m.UserHandler)
+	route.RegisterUserRoutes(router, m.UserHandler)
 }

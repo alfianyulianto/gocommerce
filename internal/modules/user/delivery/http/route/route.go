@@ -1,4 +1,4 @@
-package routing
+package route
 
 import (
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/delivery/http"
