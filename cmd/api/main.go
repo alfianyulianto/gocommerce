@@ -22,6 +22,7 @@ func main() {
 		DB:     db,
 		Logger: log,
 		Client: client,
+		Config: cfg,
 	})
 
 	err := app.Listen(fmt.Sprintf(":%d", cfg.App.Port))
