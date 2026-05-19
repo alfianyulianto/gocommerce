@@ -24,7 +24,7 @@ func main() {
 		Client: client,
 	})
 
-	err := app.Listen(fmt.Sprintf("%s:%d", cfg.App.BaseURL, cfg.App.Port))
+	err := app.Listen(fmt.Sprintf(":%d", cfg.App.Port))
 	if err != nil {
 		log.Panic("Error starting server:", err)
 	}
