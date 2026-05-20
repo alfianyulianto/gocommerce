@@ -64,7 +64,7 @@ func (h *UserHandler) Delete(ctx fiber.Ctx) error {
 }
 
 func (h *UserHandler) FindAll(ctx fiber.Ctx) error {
-	request := new(dto.PaginationRequest)
+	request := new(dto.UserFilterRequest)
 
 	request.Page = fiber.Query(ctx, "page", 1)
 	request.PerPage = fiber.Query(ctx, "per_page", 10)

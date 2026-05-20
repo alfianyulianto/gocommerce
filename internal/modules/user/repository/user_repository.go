@@ -9,12 +9,16 @@ import (
 	"gorm.io/gorm"
 )
 
+type UserFilter struct {
+	shared.PaginationFilter
+}
+
 type UserRepository interface {
 	Create(ctx context.Context, db *gorm.DB, entity *entity.User) error
 	Update(ctx context.Context, db *gorm.DB, entity *entity.User) error
 	Delete(ctx context.Context, db *gorm.DB, entity *entity.User) error
 	FindById(ctx context.Context, db *gorm.DB, entity *entity.User, id string) error
-	FindAll(ctx context.Context, db *gorm.DB, filter *shared.PaginationFilter) ([]entity.User, int64, error)
+	FindAll(ctx context.Context, db *gorm.DB, filter *UserFilter) ([]entity.User, int64, error)
 }
 
 type userRepository struct {
@@ -25,7 +29,7 @@ func NewUserRepository() UserRepository {
 	return &userRepository{}
 }
 
-func (u *userRepository) FindAll(ctx context.Context, db *gorm.DB, filter *shared.PaginationFilter) ([]entity.User, int64, error) {
+func (u *userRepository) FindAll(ctx context.Context, db *gorm.DB, filter *UserFilter) ([]entity.User, int64, error) {
 	var users []entity.User
 	err := db.WithContext(ctx).Order(fmt.Sprintf("%s %s", filter.OrderBy, filter.OrderDirection)).Offset((filter.Page - 1) * filter.PerPage).Limit(filter.PerPage).Find(&users).Error
 	if err != nil {

@@ -22,7 +22,7 @@ type UserUseCase interface {
 	Update(ctx context.Context, request *dto.UpdateUserRequest) (*dto.UserResponse, error)
 	FindById(ctx context.Context, id string) (*dto.UserResponse, error)
 	Delete(ctx context.Context, id string) error
-	FindAll(ctx context.Context, request *dto.PaginationRequest) ([]dto.UserResponse, *response.Pagination, error)
+	FindAll(ctx context.Context, request *dto.UserFilterRequest) ([]dto.UserResponse, *response.Pagination, error)
 	Search(ctx context.Context, request *dto.SearchUserRequest) ([]dto.UserResponse, *response.Pagination, error)
 }
 
@@ -162,12 +162,12 @@ func (c *userUseCase) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (c *userUseCase) FindAll(ctx context.Context, request *dto.PaginationRequest) ([]dto.UserResponse, *response.Pagination, error) {
+func (c *userUseCase) FindAll(ctx context.Context, request *dto.UserFilterRequest) ([]dto.UserResponse, *response.Pagination, error) {
 	if err := validation.Validate.Struct(request); err != nil {
 		return nil, nil, err
 	}
 
-	filter := request.ToPaginationFilter()
+	filter := dto.ToUserFilter(request)
 	users, total, err := c.Repository.FindAll(ctx, c.DB, filter)
 	if err != nil {
 		return nil, nil, err
