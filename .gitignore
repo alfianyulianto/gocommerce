@@ -3,3 +3,9 @@
 .env
 
 application.log
+
+/uploads
+
+*.http
+
+ipad.jpg
