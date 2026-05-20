@@ -33,6 +33,9 @@
       "stock": {
           "type": "integer"
       },
+      "created_at": {
+        "type": "long"
+      },
       "updated_at": {
         "type": "long"
       },
