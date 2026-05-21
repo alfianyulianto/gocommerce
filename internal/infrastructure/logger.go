@@ -1,4 +1,4 @@
-package infrastucture
+package infrastructure
 
 import (
 	"io"
@@ -17,7 +17,7 @@ func NewLogger() *logrus.Logger {
 		logger.Error("Failed to open log file, using default stderr:", err)
 		file = os.Stdout
 	}
-	
+
 	logger.SetOutput(io.MultiWriter(file, os.Stdout))
 
 	return logger

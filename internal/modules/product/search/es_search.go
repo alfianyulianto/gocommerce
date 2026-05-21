@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/alfianyulianto/gocommerce/internal/infrastucture/elasticsearch"
+	"github.com/alfianyulianto/gocommerce/internal/infrastructure/elasticsearch"
 	"github.com/alfianyulianto/gocommerce/internal/modules/product/dto"
 	"github.com/alfianyulianto/gocommerce/internal/modules/product/entity"
 )

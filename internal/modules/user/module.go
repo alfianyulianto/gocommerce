@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/alfianyulianto/gocommerce/internal/infrastucture/elasticsearch"
+	"github.com/alfianyulianto/gocommerce/internal/infrastructure/elasticsearch"
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/delivery/http"
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/delivery/http/route"
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/repository"

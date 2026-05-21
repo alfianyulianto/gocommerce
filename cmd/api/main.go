@@ -5,17 +5,17 @@ import (
 
 	"github.com/alfianyulianto/gocommerce/config"
 	"github.com/alfianyulianto/gocommerce/internal"
-	"github.com/alfianyulianto/gocommerce/internal/infrastucture"
-	"github.com/alfianyulianto/gocommerce/internal/infrastucture/elasticsearch"
+	"github.com/alfianyulianto/gocommerce/internal/infrastructure"
+	"github.com/alfianyulianto/gocommerce/internal/infrastructure/elasticsearch"
 	"github.com/alfianyulianto/gocommerce/pkg/validation"
 )
 
 func main() {
-	log := infrastucture.NewLogger()
+	log := infrastructure.NewLogger()
 	cfg := config.Load(validation.Validate, log)
-	db := infrastucture.NewDatabase(cfg, log)
+	db := infrastructure.NewDatabase(cfg, log)
 	client := elasticsearch.NewClient(cfg, log)
-	app := infrastucture.New(cfg, log, db)
+	app := infrastructure.New(cfg, log, db)
 
 	internal.Bootstrap(&internal.BootstrapConfig{
 		App:    app,

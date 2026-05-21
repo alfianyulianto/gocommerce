@@ -2,7 +2,7 @@ package product
 
 import (
 	"github.com/alfianyulianto/gocommerce/config"
-	"github.com/alfianyulianto/gocommerce/internal/infrastucture/elasticsearch"
+	"github.com/alfianyulianto/gocommerce/internal/infrastructure/elasticsearch"
 	"github.com/alfianyulianto/gocommerce/internal/modules/product/delivery/http"
 	"github.com/alfianyulianto/gocommerce/internal/modules/product/delivery/http/route"
 	"github.com/alfianyulianto/gocommerce/internal/modules/product/repository"
