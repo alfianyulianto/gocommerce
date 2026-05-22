@@ -5,6 +5,7 @@ import (
 
 	"github.com/alfianyulianto/gocommerce/config"
 	"github.com/alfianyulianto/gocommerce/internal/infrastructure/elasticsearch"
+	"github.com/alfianyulianto/gocommerce/internal/infrastructure/kafka"
 	"github.com/alfianyulianto/gocommerce/internal/modules/product"
 	"github.com/alfianyulianto/gocommerce/internal/modules/user"
 	"github.com/gofiber/fiber/v3"
@@ -19,6 +20,7 @@ type BootstrapConfig struct {
 	*logrus.Logger
 	*elasticsearch.Client
 	*config.Config
+	kafka.Producer
 }
 
 func Bootstrap(config *BootstrapConfig) {
