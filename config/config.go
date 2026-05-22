@@ -12,6 +12,7 @@ type Config struct {
 	App           AppConfig
 	Database      DatabaseConfig
 	Elasticsearch ElasticsearchConfig
+	Kafka         KafkaConfig
 }
 
 type AppConfig struct {
@@ -43,6 +44,12 @@ type ElasticsearchConfig struct {
 	// Index Names
 	UserIndex    string `validate:"required"`
 	ProductIndex string `validate:"required"`
+}
+
+type KafkaConfig struct {
+	GroupId string   `validate:"required"`
+	Brokers []string `validate:"required,dive,required,hostname_port"`
+	Topic   string   `validate:"required"`
 }
 
 func Load(validate *validator.Validate, log *logrus.Logger) *Config {
@@ -79,6 +86,10 @@ func Load(validate *validator.Validate, log *logrus.Logger) *Config {
 	cfg.Elasticsearch.Addresses = viper.GetStringSlice("ELASTICSEARCH_ADDRESSES")
 	cfg.Elasticsearch.UserIndex = viper.GetString("ELASTICSEARCH_USER_INDEX")
 	cfg.Elasticsearch.ProductIndex = viper.GetString("ELASTICSEARCH_PRODUCT_INDEX")
+
+	cfg.Kafka.GroupId = viper.GetString("KAFKA_GROUP_ID")
+	cfg.Kafka.Brokers = viper.GetStringSlice("KAFKA_BROKERS")
+	cfg.Kafka.Topic = viper.GetString("KAFKA_TOPIC")
 
 	err = validate.Struct(cfg)
 	if err != nil {
