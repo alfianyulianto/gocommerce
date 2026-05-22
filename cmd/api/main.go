@@ -7,6 +7,7 @@ import (
 	"github.com/alfianyulianto/gocommerce/internal"
 	"github.com/alfianyulianto/gocommerce/internal/infrastructure"
 	"github.com/alfianyulianto/gocommerce/internal/infrastructure/elasticsearch"
+	"github.com/alfianyulianto/gocommerce/internal/infrastructure/kafka"
 	"github.com/alfianyulianto/gocommerce/pkg/validation"
 )
 
@@ -16,13 +17,15 @@ func main() {
 	db := infrastructure.NewDatabase(cfg, log)
 	client := elasticsearch.NewClient(cfg, log)
 	app := infrastructure.New(cfg, log, db)
+	producer := kafka.NewProducer(cfg, log)
 
 	internal.Bootstrap(&internal.BootstrapConfig{
-		App:    app,
-		DB:     db,
-		Logger: log,
-		Client: client,
-		Config: cfg,
+		App:      app,
+		DB:       db,
+		Logger:   log,
+		Client:   client,
+		Config:   cfg,
+		Producer: producer,
 	})
 
 	err := app.Listen(fmt.Sprintf(":%d", cfg.App.Port))
