@@ -6,6 +6,7 @@ import (
 	"github.com/alfianyulianto/gocommerce/config"
 	"github.com/alfianyulianto/gocommerce/internal/infrastructure/elasticsearch"
 	"github.com/alfianyulianto/gocommerce/internal/infrastructure/kafka"
+	"github.com/alfianyulianto/gocommerce/internal/modules/order"
 	"github.com/alfianyulianto/gocommerce/internal/modules/product"
 	"github.com/alfianyulianto/gocommerce/internal/modules/user"
 	"github.com/gofiber/fiber/v3"
@@ -36,4 +37,7 @@ func Bootstrap(config *BootstrapConfig) {
 
 	productModule := product.NewModule(config.DB, config.Logger, config.Client, config.Config)
 	productModule.Register(v1)
+
+	orderModule := order.NewModule(config.DB, config.Logger, config.Config, config.Producer)
+	orderModule.Register(v1)
 }
