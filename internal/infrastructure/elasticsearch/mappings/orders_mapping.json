@@ -1,0 +1,59 @@
+{
+  "mappings": {
+    "numeric_detection": true,
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "user_id": {
+        "type": "keyword"
+      },
+      "status": {
+        "type": "text"
+      },
+      "total_amount": {
+        "type": "double"
+      },
+      "note": {
+        "type": "text"
+      },
+      "items": {
+        "type": "nested",
+        "properties": {
+          "product_id": {
+            "type": "keyword"
+          },
+          "product_name": {
+            "type": "text",
+            "fields": {
+              "raw": {
+                "type": "keyword"
+              }
+            }
+          },
+          "product_image": {
+            "type": "text"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "unit_price": {
+            "type": "double"
+          },
+          "subtotal": {
+            "type": "double"
+          },
+          "created_at": {
+            "type": "long"
+          }
+        }
+      },
+      "created_at": {
+        "type": "long"
+      },
+      "updated_at": {
+        "type": "long"
+      }
+    }
+  }
+}

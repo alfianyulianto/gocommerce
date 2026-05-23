@@ -44,6 +44,7 @@ type ElasticsearchConfig struct {
 	// Index Names
 	UserIndex    string `validate:"required"`
 	ProductIndex string `validate:"required"`
+	OrderIndex   string `validate:"required"`
 }
 
 type KafkaConfig struct {
@@ -86,6 +87,7 @@ func Load(validate *validator.Validate, log *logrus.Logger) *Config {
 	cfg.Elasticsearch.Addresses = viper.GetStringSlice("ELASTICSEARCH_ADDRESSES")
 	cfg.Elasticsearch.UserIndex = viper.GetString("ELASTICSEARCH_USER_INDEX")
 	cfg.Elasticsearch.ProductIndex = viper.GetString("ELASTICSEARCH_PRODUCT_INDEX")
+	cfg.Elasticsearch.OrderIndex = viper.GetString("ELASTICSEARCH_ORDER_INDEX")
 
 	cfg.Kafka.GroupId = viper.GetString("KAFKA_GROUP_ID")
 	cfg.Kafka.Brokers = viper.GetStringSlice("KAFKA_BROKERS")

@@ -184,3 +184,7 @@ func (c *Client) UserIndex() string {
 func (c *Client) ProductIndex() string {
 	return c.cfg.Elasticsearch.ProductIndex
 }
+
+func (c *Client) OrderIndex() string {
+	return c.cfg.Elasticsearch.OrderIndex
+}
