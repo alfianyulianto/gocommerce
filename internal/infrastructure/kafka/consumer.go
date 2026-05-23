@@ -60,6 +60,11 @@ func (c *consumer) Consume(ctx context.Context, handler MessageHandler) error {
 		}
 
 		if err = handler(string(msg.Key), payload); err != nil {
+			c.Log.WithFields(logrus.Fields{
+				"topic": msg.Topic,
+				"key":   string(msg.Key),
+				"value": string(msg.Value),
+			}).WithError(err).Error("Failed to handle message")
 			continue
 		}
 
