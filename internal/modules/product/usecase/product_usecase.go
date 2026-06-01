@@ -15,7 +15,6 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 type ProductUseCase interface {
@@ -29,23 +28,19 @@ type ProductUseCase interface {
 
 type productUseCase struct {
 	Repository repository.ProductRepository
-	DB         *gorm.DB
 	Log        *logrus.Logger
 	ESSearch   search.ESSearch
 	Config     *config.Config
 }
 
-func NewProductUseCase(repository repository.ProductRepository, DB *gorm.DB, log *logrus.Logger, ESSearch search.ESSearch, config *config.Config) ProductUseCase {
-	return &productUseCase{Repository: repository, DB: DB, Log: log, ESSearch: ESSearch, Config: config}
+func NewProductUseCase(repository repository.ProductRepository, log *logrus.Logger, ESSearch search.ESSearch, config *config.Config) ProductUseCase {
+	return &productUseCase{Repository: repository, Log: log, ESSearch: ESSearch, Config: config}
 }
 
 func (p *productUseCase) Create(ctx context.Context, request *dto.CreateProductRequest) (*dto.ProductResponse, error) {
 	if err := validation.Validate.Struct(request); err != nil {
 		return nil, err
 	}
-
-	tx := p.DB.WithContext(ctx).Begin()
-	defer tx.Rollback()
 
 	product := &entity.Product{
 		ID:          uuid.NewString(),
@@ -57,17 +52,12 @@ func (p *productUseCase) Create(ctx context.Context, request *dto.CreateProductR
 		Stock:       request.Stock,
 	}
 
-	if err := p.Repository.Create(ctx, tx, product); err != nil {
-		return nil, err
-	}
-
-	err := tx.Commit().Error
-	if err != nil {
+	if err := p.Repository.Create(ctx, product); err != nil {
 		return nil, err
 	}
 
 	go func() {
-		err = p.ESSearch.Index(ctx, product)
+		err := p.ESSearch.Index(ctx, product)
 		if err != nil {
 			p.Log.WithField("product", product).WithError(err).Error("Failed to index product in Elasticsearch")
 		}
@@ -83,11 +73,8 @@ func (p *productUseCase) Update(ctx context.Context, request *dto.UpdateProductR
 		return nil, err
 	}
 
-	tx := p.DB.WithContext(ctx).Begin()
-	defer tx.Rollback()
-
 	product := new(entity.Product)
-	if err := p.Repository.FindById(ctx, tx, product, request.ID); err != nil {
+	if err := p.Repository.FindById(ctx, product, request.ID); err != nil {
 		return nil, fiber.NewError(fiber.StatusNotFound, "Product not found")
 	}
 
@@ -101,11 +88,7 @@ func (p *productUseCase) Update(ctx context.Context, request *dto.UpdateProductR
 		product.Image = request.Image
 	}
 
-	if err := p.Repository.Update(ctx, tx, product); err != nil {
-		return nil, err
-	}
-
-	if err := tx.Commit().Error; err != nil {
+	if err := p.Repository.Update(ctx, product); err != nil {
 		return nil, err
 	}
 
@@ -119,11 +102,8 @@ func (p *productUseCase) Update(ctx context.Context, request *dto.UpdateProductR
 }
 
 func (p *productUseCase) FindById(ctx context.Context, id string) (*dto.ProductResponse, error) {
-	tx := p.DB.WithContext(ctx).Begin()
-	defer tx.Rollback()
-
 	product := new(entity.Product)
-	if err := p.Repository.FindById(ctx, tx, product, id); err != nil {
+	if err := p.Repository.FindById(ctx, product, id); err != nil {
 		return nil, fiber.NewError(fiber.StatusNotFound, "Product not found")
 	}
 
@@ -133,20 +113,13 @@ func (p *productUseCase) FindById(ctx context.Context, id string) (*dto.ProductR
 }
 
 func (p *productUseCase) Delete(ctx context.Context, id string) error {
-	tx := p.DB.WithContext(ctx).Begin()
-	defer tx.Rollback()
-
 	product := new(entity.Product)
-	if err := p.Repository.FindById(ctx, tx, product, id); err != nil {
+	if err := p.Repository.FindById(ctx, product, id); err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "Product not found")
 	}
 
-	if err := p.Repository.Delete(ctx, tx, product); err != nil {
+	if err := p.Repository.Delete(ctx, product); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		return err
 	}
 
 	go func() {
@@ -163,11 +136,8 @@ func (p *productUseCase) FindAll(ctx context.Context, request *dto.ProductFilter
 		return nil, nil, err
 	}
 
-	tx := p.DB.WithContext(ctx).Begin()
-	defer tx.Rollback()
-
 	filter := dto.ToProductFilter(request)
-	products, total, err := p.Repository.FindAll(ctx, tx, filter)
+	products, total, err := p.Repository.FindAll(ctx, filter)
 	if err != nil {
 		return nil, nil, err
 	}
