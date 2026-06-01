@@ -7,20 +7,21 @@ import (
 )
 
 type Repository[T any] struct {
+	DB *gorm.DB
 }
 
-func (r *Repository[T]) Create(ctx context.Context, db *gorm.DB, entity *T) error {
-	return db.WithContext(ctx).Create(entity).Error
+func (r *Repository[T]) Create(ctx context.Context, entity *T) error {
+	return r.DB.WithContext(ctx).Create(entity).Error
 }
 
-func (r *Repository[T]) Update(ctx context.Context, db *gorm.DB, entity *T) error {
-	return db.WithContext(ctx).Save(entity).Error
+func (r *Repository[T]) Update(ctx context.Context, entity *T) error {
+	return r.DB.WithContext(ctx).Save(entity).Error
 }
 
-func (r *Repository[T]) Delete(ctx context.Context, db *gorm.DB, entity *T) error {
-	return db.WithContext(ctx).Unscoped().Delete(entity).Error
+func (r *Repository[T]) Delete(ctx context.Context, entity *T) error {
+	return r.DB.WithContext(ctx).Unscoped().Delete(entity).Error
 }
 
-func (r *Repository[T]) FindById(ctx context.Context, db *gorm.DB, entity *T, id string) error {
-	return db.WithContext(ctx).Take(entity, "id = ?", id).Error
+func (r *Repository[T]) FindById(ctx context.Context, entity *T, id string) error {
+	return r.DB.WithContext(ctx).Take(entity, "id = ?", id).Error
 }
