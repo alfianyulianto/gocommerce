@@ -27,14 +27,14 @@ type ProductUseCase interface {
 }
 
 type productUseCase struct {
-	Repository repository.ProductRepository
-	Log        *logrus.Logger
-	ESSearch   search.ESSearch
-	Config     *config.Config
+	Repository    repository.ProductRepository
+	Log           *logrus.Logger
+	ProductSearch search.ProductSearch
+	Config        *config.Config
 }
 
-func NewProductUseCase(repository repository.ProductRepository, log *logrus.Logger, ESSearch search.ESSearch, config *config.Config) ProductUseCase {
-	return &productUseCase{Repository: repository, Log: log, ESSearch: ESSearch, Config: config}
+func NewProductUseCase(repository repository.ProductRepository, log *logrus.Logger, productSearch search.ProductSearch, config *config.Config) ProductUseCase {
+	return &productUseCase{Repository: repository, Log: log, ProductSearch: productSearch, Config: config}
 }
 
 func (p *productUseCase) Create(ctx context.Context, request *dto.CreateProductRequest) (*dto.ProductResponse, error) {
@@ -57,7 +57,7 @@ func (p *productUseCase) Create(ctx context.Context, request *dto.CreateProductR
 	}
 
 	go func() {
-		err := p.ESSearch.Index(ctx, product)
+		err := p.ProductSearch.Index(ctx, product)
 		if err != nil {
 			p.Log.WithField("product", product).WithError(err).Error("Failed to index product in Elasticsearch")
 		}
@@ -93,7 +93,7 @@ func (p *productUseCase) Update(ctx context.Context, request *dto.UpdateProductR
 	}
 
 	go func() {
-		if err := p.ESSearch.Index(ctx, product); err != nil {
+		if err := p.ProductSearch.Index(ctx, product); err != nil {
 			p.Log.WithField("product", product).WithError(err).Error("Failed to index update product in Elasticsearch")
 		}
 	}()
@@ -123,7 +123,7 @@ func (p *productUseCase) Delete(ctx context.Context, id string) error {
 	}
 
 	go func() {
-		if err := p.ESSearch.Delete(ctx, id); err != nil {
+		if err := p.ProductSearch.Delete(ctx, id); err != nil {
 			p.Log.WithField("product", product).WithError(err).Error("Failed to delete product in Elasticsearch")
 		}
 	}()
@@ -168,7 +168,7 @@ func (p *productUseCase) Search(ctx context.Context, request *dto.SearchProductR
 		return nil, nil, err
 	}
 
-	products, total, err := p.ESSearch.Search(ctx, request)
+	products, total, err := p.ProductSearch.Search(ctx, request)
 	if err != nil {
 		return nil, nil, err
 	}

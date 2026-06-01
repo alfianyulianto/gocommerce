@@ -20,9 +20,9 @@ type Module struct {
 }
 
 func NewModule(db *gorm.DB, log *logrus.Logger, client *elasticsearch.Client, config *config.Config) *Module {
-	esSearch := search.NewEsProductSearch(client)
+	productSearch := search.NewProductSearch(client)
 	productRepository := repository.NewProductRepository(db)
-	useCase := usecase.NewProductUseCase(productRepository, log, esSearch, config)
+	useCase := usecase.NewProductUseCase(productRepository, log, productSearch, config)
 	productHandler := http.NewProductHandler(useCase)
 
 	fileValidator := file_upload.NewFileValidator(file_upload.ProductFileConfig())
