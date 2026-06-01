@@ -14,7 +14,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type UserUseCase interface {
@@ -28,22 +27,18 @@ type UserUseCase interface {
 
 type userUseCase struct {
 	Repository repository.UserRepository
-	DB         *gorm.DB
 	Log        *logrus.Logger
 	ESSearch   search.ESSearch
 }
 
-func NewUserUseCase(repository repository.UserRepository, DB *gorm.DB, log *logrus.Logger, ESSearch search.ESSearch) UserUseCase {
-	return &userUseCase{Repository: repository, DB: DB, Log: log, ESSearch: ESSearch}
+func NewUserUseCase(repository repository.UserRepository, log *logrus.Logger, ESSearch search.ESSearch) UserUseCase {
+	return &userUseCase{Repository: repository, Log: log, ESSearch: ESSearch}
 }
 
 func (c *userUseCase) Create(ctx context.Context, request *dto.CreateUserRequest) (*dto.UserResponse, error) {
 	if err := validation.Validate.Struct(request); err != nil {
 		return nil, err
 	}
-
-	tx := c.DB.WithContext(ctx).Begin()
-	defer tx.Rollback()
 
 	password, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -58,11 +53,7 @@ func (c *userUseCase) Create(ctx context.Context, request *dto.CreateUserRequest
 		Phone:    request.Phone,
 	}
 
-	if err = c.Repository.Create(ctx, tx, user); err != nil {
-		return nil, err
-	}
-
-	if err = tx.Commit().Error; err != nil {
+	if err = c.Repository.Create(ctx, user); err != nil {
 		return nil, err
 	}
 
@@ -81,11 +72,8 @@ func (c *userUseCase) Update(ctx context.Context, request *dto.UpdateUserRequest
 		return nil, err
 	}
 
-	tx := c.DB.WithContext(ctx).Begin()
-	defer tx.Rollback()
-
 	user := new(entity.User)
-	if err := c.Repository.FindById(ctx, tx, user, request.ID); err != nil {
+	if err := c.Repository.FindById(ctx, user, request.ID); err != nil {
 		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
@@ -104,17 +92,12 @@ func (c *userUseCase) Update(ctx context.Context, request *dto.UpdateUserRequest
 		user.Phone = request.Phone
 	}
 
-	if err := c.Repository.Update(ctx, tx, user); err != nil {
-		return nil, err
-	}
-
-	err := tx.Commit().Error
-	if err != nil {
+	if err := c.Repository.Update(ctx, user); err != nil {
 		return nil, err
 	}
 
 	go func() {
-		err = c.ESSearch.Index(ctx, user)
+		err := c.ESSearch.Index(ctx, user)
 		if err != nil {
 			c.Log.WithField("user", user).WithError(err).Error("Failed to index update user in elasticsearch")
 		}
@@ -124,11 +107,8 @@ func (c *userUseCase) Update(ctx context.Context, request *dto.UpdateUserRequest
 }
 
 func (c *userUseCase) FindById(ctx context.Context, id string) (*dto.UserResponse, error) {
-	tx := c.DB.WithContext(ctx).Begin()
-	defer tx.Rollback()
-
 	user := new(entity.User)
-	if err := c.Repository.FindById(ctx, tx, user, id); err != nil {
+	if err := c.Repository.FindById(ctx, user, id); err != nil {
 		return nil, fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
@@ -136,20 +116,13 @@ func (c *userUseCase) FindById(ctx context.Context, id string) (*dto.UserRespons
 }
 
 func (c *userUseCase) Delete(ctx context.Context, id string) error {
-	tx := c.DB.WithContext(ctx).Begin()
-	defer tx.Rollback()
-
 	user := new(entity.User)
-	if err := c.Repository.FindById(ctx, tx, user, id); err != nil {
+	if err := c.Repository.FindById(ctx, user, id); err != nil {
 		return fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
-	if err := c.Repository.Delete(ctx, tx, user); err != nil {
+	if err := c.Repository.Delete(ctx, user); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		return err
 	}
 
 	go func() {
@@ -168,7 +141,7 @@ func (c *userUseCase) FindAll(ctx context.Context, request *dto.UserFilterReques
 	}
 
 	filter := dto.ToUserFilter(request)
-	users, total, err := c.Repository.FindAll(ctx, c.DB, filter)
+	users, total, err := c.Repository.FindAll(ctx, filter)
 	if err != nil {
 		return nil, nil, err
 	}
