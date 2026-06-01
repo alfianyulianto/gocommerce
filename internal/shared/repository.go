@@ -25,3 +25,7 @@ func (r *Repository[T]) Delete(ctx context.Context, entity *T) error {
 func (r *Repository[T]) FindById(ctx context.Context, entity *T, id string) error {
 	return r.DB.WithContext(ctx).Take(entity, "id = ?", id).Error
 }
+
+func (r *Repository[T]) Transaction(ctx context.Context, fn func(tx *gorm.DB) error) error {
+	return r.DB.WithContext(ctx).Transaction(fn)
+}
