@@ -17,9 +17,9 @@ type Module struct {
 }
 
 func NewModule(db *gorm.DB, log *logrus.Logger, client *elasticsearch.Client) *Module {
-	esSearch := search.NewEsUserSearch(client)
+	userSearch := search.NewUserSearch(client)
 	userRepository := repository.NewUserRepository(db)
-	useCase := usecase.NewUserUseCase(userRepository, log, esSearch)
+	useCase := usecase.NewUserUseCase(userRepository, log, userSearch)
 	userHandler := http.NewUserHandler(useCase)
 	return &Module{UserHandler: userHandler}
 }

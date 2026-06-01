@@ -28,11 +28,11 @@ type UserUseCase interface {
 type userUseCase struct {
 	Repository repository.UserRepository
 	Log        *logrus.Logger
-	ESSearch   search.ESSearch
+	UserSearch search.UserSearch
 }
 
-func NewUserUseCase(repository repository.UserRepository, log *logrus.Logger, ESSearch search.ESSearch) UserUseCase {
-	return &userUseCase{Repository: repository, Log: log, ESSearch: ESSearch}
+func NewUserUseCase(repository repository.UserRepository, log *logrus.Logger, userSearch search.UserSearch) UserUseCase {
+	return &userUseCase{Repository: repository, Log: log, UserSearch: userSearch}
 }
 
 func (c *userUseCase) Create(ctx context.Context, request *dto.CreateUserRequest) (*dto.UserResponse, error) {
@@ -58,7 +58,7 @@ func (c *userUseCase) Create(ctx context.Context, request *dto.CreateUserRequest
 	}
 
 	go func() {
-		err = c.ESSearch.Index(ctx, user)
+		err = c.UserSearch.Index(ctx, user)
 		if err != nil {
 			c.Log.WithField("user", user).WithError(err).Error("Failed to index create user in elasticsearch")
 		}
@@ -97,7 +97,7 @@ func (c *userUseCase) Update(ctx context.Context, request *dto.UpdateUserRequest
 	}
 
 	go func() {
-		err := c.ESSearch.Index(ctx, user)
+		err := c.UserSearch.Index(ctx, user)
 		if err != nil {
 			c.Log.WithField("user", user).WithError(err).Error("Failed to index update user in elasticsearch")
 		}
@@ -126,7 +126,7 @@ func (c *userUseCase) Delete(ctx context.Context, id string) error {
 	}
 
 	go func() {
-		err := c.ESSearch.Delete(ctx, id)
+		err := c.UserSearch.Delete(ctx, id)
 		if err != nil {
 			c.Log.WithField("user", user).WithError(err).Error("Failed to delete user in elasticsearch")
 		}
@@ -171,7 +171,7 @@ func (c *userUseCase) Search(ctx context.Context, request *dto.SearchUserRequest
 		return nil, nil, err
 	}
 
-	users, total, err := c.ESSearch.Search(ctx, request)
+	users, total, err := c.UserSearch.Search(ctx, request)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -9,13 +9,13 @@ import (
 	"github.com/alfianyulianto/gocommerce/internal/modules/user/entity"
 )
 
-type ESSearch interface {
+type UserSearch interface {
 	Index(ctx context.Context, entity *entity.User) error
 	Delete(ctx context.Context, id string) error
 	Search(ctx context.Context, request *dto.SearchUserRequest) ([]dto.UserResponse, int64, error)
 }
 
-type esUserSearch struct {
+type userSearch struct {
 	Client *elasticsearch.Client
 }
 
@@ -30,11 +30,11 @@ type UserDocument struct {
 	DeletedAt *int64  `json:"deleted_at"`
 }
 
-func NewEsUserSearch(client *elasticsearch.Client) ESSearch {
-	return &esUserSearch{Client: client}
+func NewUserSearch(client *elasticsearch.Client) UserSearch {
+	return &userSearch{Client: client}
 }
 
-func (e *esUserSearch) Index(ctx context.Context, entity *entity.User) error {
+func (e *userSearch) Index(ctx context.Context, entity *entity.User) error {
 	document := UserDocument{
 		ID:        entity.ID,
 		Name:      entity.Name,
@@ -49,11 +49,11 @@ func (e *esUserSearch) Index(ctx context.Context, entity *entity.User) error {
 	return e.Client.Index(ctx, e.Client.UserIndex(), document.ID, document)
 }
 
-func (e *esUserSearch) Delete(ctx context.Context, id string) error {
+func (e *userSearch) Delete(ctx context.Context, id string) error {
 	return e.Client.Delete(ctx, e.Client.UserIndex(), id)
 }
 
-func (e *esUserSearch) Search(ctx context.Context, request *dto.SearchUserRequest) ([]dto.UserResponse, int64, error) {
+func (e *userSearch) Search(ctx context.Context, request *dto.SearchUserRequest) ([]dto.UserResponse, int64, error) {
 	var must []any
 	if request.Search != "" {
 		must = append(must, map[string]interface{}{
