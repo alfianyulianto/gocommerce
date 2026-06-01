@@ -16,30 +16,34 @@ type ProductFilter struct {
 }
 
 type ProductRepository interface {
-	Create(ctx context.Context, db *gorm.DB, product *entity.Product) error
-	Update(ctx context.Context, db *gorm.DB, product *entity.Product) error
-	Delete(ctx context.Context, db *gorm.DB, product *entity.Product) error
-	FindById(ctx context.Context, db *gorm.DB, product *entity.Product, id string) error
-	FindAll(ctx context.Context, db *gorm.DB, filter *ProductFilter) ([]entity.Product, int64, error)
+	Create(ctx context.Context, product *entity.Product) error
+	Update(ctx context.Context, product *entity.Product) error
+	Delete(ctx context.Context, product *entity.Product) error
+	FindById(ctx context.Context, product *entity.Product, id string) error
+	FindAll(ctx context.Context, filter *ProductFilter) ([]entity.Product, int64, error)
 }
 
 type productRepository struct {
 	shared.Repository[entity.Product]
 }
 
-func NewProductRepository() ProductRepository {
-	return &productRepository{}
+func NewProductRepository(db *gorm.DB) ProductRepository {
+	return &productRepository{
+		Repository: shared.Repository[entity.Product]{
+			DB: db,
+		},
+	}
 }
 
-func (p *productRepository) FindAll(ctx context.Context, db *gorm.DB, filter *ProductFilter) ([]entity.Product, int64, error) {
+func (p *productRepository) FindAll(ctx context.Context, filter *ProductFilter) ([]entity.Product, int64, error) {
 	var products []entity.Product
-	err := db.WithContext(ctx).Scopes(p.Filter(filter)).Order(fmt.Sprintf("%s %s", filter.OrderBy, filter.OrderDirection)).Offset((filter.Page - 1) * filter.PerPage).Limit(filter.PerPage).Find(&products).Error
+	err := p.DB.WithContext(ctx).Scopes(p.Filter(filter)).Order(fmt.Sprintf("%s %s", filter.OrderBy, filter.OrderDirection)).Offset((filter.Page - 1) * filter.PerPage).Limit(filter.PerPage).Find(&products).Error
 	if err != nil {
 		return nil, 0, err
 	}
 
 	var total int64
-	err = db.WithContext(ctx).Model(new(entity.Product)).Scopes(p.Filter(filter)).Count(&total).Error
+	err = p.DB.WithContext(ctx).Model(new(entity.Product)).Scopes(p.Filter(filter)).Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
