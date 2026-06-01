@@ -13,6 +13,8 @@ type OrderRepository interface {
 	Update(ctx context.Context, order *entity.Order) error
 	Delete(ctx context.Context, order *entity.Order) error
 	FindById(ctx context.Context, order *entity.Order, id string) error
+	CreateWithItems(ctx context.Context, tx *gorm.DB, order *entity.Order, items []entity.OrderItem) error
+	Transaction(ctx context.Context, fn func(tx *gorm.DB) error) error
 }
 
 type orderRepository struct {
@@ -25,4 +27,12 @@ func NewOrderRepository(db *gorm.DB) OrderRepository {
 			DB: db,
 		},
 	}
+}
+
+func (o *orderRepository) CreateWithItems(ctx context.Context, tx *gorm.DB, order *entity.Order, items []entity.OrderItem) error {
+	order.Items = items
+	if err := tx.WithContext(ctx).Create(order).Error; err != nil {
+		return err
+	}
+	return nil
 }
