@@ -10,12 +10,12 @@ import (
 )
 
 type OrderMessaging struct {
-	ESSearch *elasticsearch.Client
+	Client   *elasticsearch.Client
 	Consumer kafka.Consumer
 }
 
-func NewOrderMessaging(ESSearch *elasticsearch.Client, consumer kafka.Consumer) *OrderMessaging {
-	return &OrderMessaging{ESSearch: ESSearch, Consumer: consumer}
+func NewOrderMessaging(client *elasticsearch.Client, consumer kafka.Consumer) *OrderMessaging {
+	return &OrderMessaging{Client: client, Consumer: consumer}
 }
 
 func (o *OrderMessaging) Start(ctx context.Context) {
@@ -46,5 +46,5 @@ func (o *OrderMessaging) indexOrder(payload map[string]interface{}) error {
 		orderIDStr = string(bytes)
 	}
 
-	return o.ESSearch.Index(context.Background(), o.ESSearch.OrderIndex(), orderIDStr, payload)
+	return o.Client.Index(context.Background(), o.Client.OrderIndex(), orderIDStr, payload)
 }
