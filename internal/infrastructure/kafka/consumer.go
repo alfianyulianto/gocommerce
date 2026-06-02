@@ -41,12 +41,12 @@ func (c *consumer) Consume(ctx context.Context, handler MessageHandler) error {
 				"key":   string(msg.Key),
 				"value": string(msg.Value),
 			}).WithError(err).Error("Kafka reader error")
-			continue
-		}
 
-		if ctx.Err() != nil {
-			c.Log.WithError(ctx.Err()).Info("Kafka consume stopped")
-			return nil
+			if ctx.Err() != nil {
+				c.Log.WithError(ctx.Err()).Info("Kafka consume stopped")
+				return nil
+			}
+			continue
 		}
 
 		var payload map[string]interface{}
