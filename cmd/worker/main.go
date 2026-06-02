@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
+	"runtime"
+	"sync"
 	"syscall"
 
 	"github.com/alfianyulianto/gocommerce/config"
@@ -26,22 +29,25 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
-	go RunOrderConsumer(cfg, log, ctx)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		RunOrderConsumer(cfg, log, ctx)
+	}()
 
-	stop := false
-	for !stop {
-		select {
-		case <-quit:
-			defer cancel()
-			log.Info("Worker service shutting down")
-			stop = true
-		}
-	}
+	<-quit
+	cancel()
+	log.Info("Worker service shutting down")
+	wg.Wait()
+	fmt.Println("after", runtime.NumGoroutine())
 }
 
 func RunOrderConsumer(cfg *config.Config, log *logrus.Logger, ctx context.Context) {
 	client := elasticsearch.NewClient(cfg, log)
 	consumer := kafka.NewConsumer(cfg, log)
+	defer consumer.Close()
+
 	orderMessaging := messaging.NewOrderMessaging(client, consumer)
 	orderMessaging.Start(ctx)
 }
