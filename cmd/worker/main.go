@@ -10,7 +10,7 @@ import (
 	"github.com/alfianyulianto/gocommerce/internal/infrastructure"
 	"github.com/alfianyulianto/gocommerce/internal/infrastructure/elasticsearch"
 	"github.com/alfianyulianto/gocommerce/internal/infrastructure/kafka"
-	"github.com/alfianyulianto/gocommerce/internal/messaging"
+	"github.com/alfianyulianto/gocommerce/internal/modules/order/delivery/messaging"
 	"github.com/alfianyulianto/gocommerce/pkg/validation"
 	"github.com/sirupsen/logrus"
 )

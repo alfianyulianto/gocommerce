@@ -85,7 +85,7 @@ func (o *orderUseCase) Create(ctx context.Context, request *dto.CreateOrderReque
 		o.Log.WithField("order", order).WithError(err).Error("Failed to marshal order")
 		return nil, err
 	}
-	if err = o.Producer.Publish(ctx, "order.events", "order.index", payload); err != nil {
+	if err = o.Producer.Publish(ctx, "order.events", "order.created", payload); err != nil {
 		o.Log.WithError(err).Error("Failed to publish order")
 		return nil, err
 	}
