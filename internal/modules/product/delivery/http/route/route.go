@@ -8,6 +8,7 @@ import (
 func RegisterProductRouters(router fiber.Router, handler *http.ProductHandler, uploadHandler *http.UploadHandler) {
 	group := router.Group("/products")
 	group.Post("/", handler.Create)
+	group.Patch(":id/stock", handler.UpdateStock)
 	group.Patch(":id", handler.Update)
 	group.Get("/search", handler.Search)
 	group.Get(":id", handler.FindById)

@@ -97,3 +97,17 @@ func (p *ProductHandler) Search(ctx fiber.Ctx) error {
 
 	return response.OK(ctx, "success search products", products, pagination)
 }
+
+func (p *ProductHandler) UpdateStock(ctx fiber.Ctx) error {
+	request := new(dto.UpdateStockRequest)
+	if err := ctx.Bind().Body(request); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Failed to parse request body")
+	}
+
+	request.ID = ctx.Params("id")
+	product, err := p.UseCase.UpdateStock(ctx.Context(), request)
+	if err != nil {
+		return err
+	}
+	return response.OK(ctx, "success update stock", product, nil)
+}

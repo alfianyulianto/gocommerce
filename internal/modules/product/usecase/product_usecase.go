@@ -24,6 +24,7 @@ type ProductUseCase interface {
 	Delete(ctx context.Context, id string) error
 	FindAll(ctx context.Context, filter *dto.ProductFilterRequest) ([]dto.ProductResponse, *response.Pagination, error)
 	Search(ctx context.Context, filter *dto.SearchProductRequest) ([]dto.ProductResponse, *response.Pagination, error)
+	UpdateStock(ctx context.Context, request *dto.UpdateStockRequest) (*dto.ProductResponse, error)
 }
 
 type productUseCase struct {
@@ -185,4 +186,29 @@ func (p *productUseCase) Search(ctx context.Context, request *dto.SearchProductR
 	}
 	return products, pagination, nil
 
+}
+
+func (p *productUseCase) UpdateStock(ctx context.Context, request *dto.UpdateStockRequest) (*dto.ProductResponse, error) {
+	if err := validation.Validate.Struct(request); err != nil {
+		return nil, err
+	}
+
+	product := new(entity.Product)
+	if err := p.Repository.FindById(ctx, product, request.ID); err != nil {
+		return nil, fiber.NewError(fiber.StatusNotFound, "Product not found")
+	}
+
+	if err := p.Repository.UpdateStock(ctx, product.ID, request.Stock); err != nil {
+		return nil, err
+	}
+
+	product.Stock = request.Stock
+
+	go func() {
+		if err := p.ProductSearch.Index(ctx, product); err != nil {
+			p.Log.WithField("product", product).WithError(err).Error("Failed to delete product in Elasticsearch")
+		}
+	}()
+
+	return dto.ToProductResponse(product), nil
 }

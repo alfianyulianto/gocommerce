@@ -22,6 +22,7 @@ type ProductRepository interface {
 	FindById(ctx context.Context, product *entity.Product, id string) error
 	FindAll(ctx context.Context, filter *ProductFilter) ([]entity.Product, int64, error)
 	DeductStock(ctx context.Context, tx *gorm.DB, product *entity.Product, quantity int16) error
+	UpdateStock(ctx context.Context, productID string, stock int16) error
 }
 
 type productRepository struct {
@@ -87,4 +88,8 @@ type StockError struct {
 
 func (e *StockError) Error() string {
 	return fmt.Sprintf("Insufficient stock for product %s. Available %d, requested %d", e.ProductName, e.Stock, e.Quantity)
+}
+
+func (p *productRepository) UpdateStock(ctx context.Context, productID string, stock int16) error {
+	return p.DB.WithContext(ctx).Model(new(entity.Product)).Where("id = ?", productID).Update("stock", stock).Error
 }
