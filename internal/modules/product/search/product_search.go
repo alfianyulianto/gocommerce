@@ -105,6 +105,10 @@ func (e *productSearch) Search(ctx context.Context, request *dto.SearchProductRe
 		}
 	}
 
+	if request.OrderBy == "name" {
+		request.OrderBy = "name.raw"
+	}
+
 	docs, total, err := e.Client.Search(ctx, e.Client.ProductIndex(), map[string]interface{}{
 		"query": boolQuery,
 		"size":  request.PerPage,
