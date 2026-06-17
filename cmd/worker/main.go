@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
-	"runtime"
 	"sync"
 	"syscall"
 
@@ -40,7 +38,6 @@ func main() {
 	cancel()
 	log.Info("Worker service shutting down")
 	wg.Wait()
-	fmt.Println("after", runtime.NumGoroutine())
 }
 
 func RunOrderConsumer(cfg *config.Config, log *logrus.Logger, ctx context.Context) {
