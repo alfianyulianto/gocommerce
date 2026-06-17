@@ -85,6 +85,10 @@ func (e *userSearch) Search(ctx context.Context, request *dto.SearchUserRequest)
 		}
 	}
 
+	if request.OrderBy == "name" {
+		request.OrderBy = "name.raw"
+	}
+
 	docs, total, err := e.Client.Search(ctx, e.Client.UserIndex(), map[string]interface{}{
 		"query": boolQuery,
 		"size":  request.PerPage,
